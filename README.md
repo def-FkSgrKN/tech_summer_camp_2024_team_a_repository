@@ -1,0 +1,2 @@
+# tech_summer_camp_2024_team_a_repository
+TechSummerCamp2024のteamAのレポジトリです. 
