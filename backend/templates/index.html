@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Records</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index_styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>ユーザ(セッションのUUID)データ</h1>
+        <div>
+            <label for="dataInput">データを入力してください:</label>
+            <input type="text" id="dataInput" placeholder="Type something...">
+            <button id="saveButton">保存する</button>
+        </div>
+
+        <h2>記録されたデータ</h2>
+        <ul id="recordsList"></ul>
+    </div>
+    
+    <!-- ボタンを押すと、/templatesに飛ぶ -->
+    <form action="/posture_correction" method="get">
+        <input type="submit" value='姿勢矯正ページに行く!'>
+    </form>
+
+    <script src="{{ url_for('static', filename='js/index_script.js') }}"></script>
+</body>
+</html>
