@@ -55,9 +55,11 @@ var xhr = new XMLHttpRequest();
 
 // キャプチャ画像データ(base64)をPOST
 function captureImg(img_base64) {
-    const body = new FormData();
-    body.append('img', img_base64);
+    const body = JSON.stringify({ img: img_base64 });
+    //body.append('img', img_base64);
     xhr.open('POST', '/capture_img', true);
+    xhr.setRequestHeader('Content-Type', 'application/json'); //json形式
+
     xhr.onload = () => {
         console.log(xhr.responseText)
     };
