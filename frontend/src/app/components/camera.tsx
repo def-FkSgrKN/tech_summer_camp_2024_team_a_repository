@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useSession } from "next-auth/react";
 
-export default function CameraPage() {
+interface CameraPageProps {
+  session: any;
+}
+
+const CameraPage: React.FC<CameraPageProps> = ({ session }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const { data: session } = useSession(); // セッションからJWTトークンを取得
 
   useEffect(() => {
-    // カメラストリームを取得する
     const getCameraStream = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -25,7 +26,6 @@ export default function CameraPage() {
 
     getCameraStream();
 
-    // カメラストリームを停止する
     return () => {
       if (videoRef.current && videoRef.current.srcObject) {
         (videoRef.current.srcObject as MediaStream)
@@ -35,12 +35,10 @@ export default function CameraPage() {
     };
   }, []);
 
-  // 画像をキャプチャしてサーバーに送信
   const captureImage = () => {
     if (videoRef.current && canvasRef.current) {
       const context = canvasRef.current.getContext("2d");
       if (context) {
-        // canvasにビデオフレームを描画
         context.drawImage(
           videoRef.current,
           0,
@@ -48,15 +46,12 @@ export default function CameraPage() {
           canvasRef.current.width,
           canvasRef.current.height
         );
-        // canvasからbase64形式の画像を取得
         const base64Image = canvasRef.current.toDataURL("image/png");
-        // base64形式の画像をサーバーに送信
         sendToServer(base64Image);
       }
     }
   };
 
-  // サーバーに画像を送信
   const sendToServer = async (base64Image: string) => {
     if (!session || !session.accessToken) {
       console.error("JWTトークンが見つかりません");
@@ -68,7 +63,7 @@ export default function CameraPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.accessToken}`, // JWTトークンをヘッダーに追加
+          Authorization: `Bearer ${session.accessToken}`,
         },
         body: JSON.stringify({ image: base64Image }),
       });
@@ -80,10 +75,9 @@ export default function CameraPage() {
   };
 
   useEffect(() => {
-    // 5秒ごとに画像をキャプチャしてサーバーに送信
     const intervalId = setInterval(captureImage, 5000);
 
-    return () => clearInterval(intervalId); // コンポーネントのアンマウント時にインターバルをクリア
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
@@ -102,4 +96,6 @@ export default function CameraPage() {
       ></canvas>
     </div>
   );
-}
+};
+
+export default CameraPage;
