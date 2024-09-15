@@ -1,11 +1,15 @@
 "use client";
+
 import { useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
 
 export default function CameraPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { data: session } = useSession(); // セッションからJWTトークンを取得
 
   useEffect(() => {
+    // カメラストリームを取得する
     const getCameraStream = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -21,8 +25,8 @@ export default function CameraPage() {
 
     getCameraStream();
 
+    // カメラストリームを停止する
     return () => {
-      // コンポーネントがアンマウントされた時にカメラストリームを停止
       if (videoRef.current && videoRef.current.srcObject) {
         (videoRef.current.srcObject as MediaStream)
           .getTracks()
@@ -47,19 +51,24 @@ export default function CameraPage() {
         // canvasからbase64形式の画像を取得
         const base64Image = canvasRef.current.toDataURL("image/png");
         // base64形式の画像をサーバーに送信
-        // sendToServer(base64Image);
-        console.log(base64Image);
+        sendToServer(base64Image);
       }
     }
   };
 
   // サーバーに画像を送信
   const sendToServer = async (base64Image: string) => {
+    if (!session || !session.accessToken) {
+      console.error("JWTトークンが見つかりません");
+      return;
+    }
+
     try {
-      const response = await fetch("http://localhost:80800/capture_img", {
+      const response = await fetch("http://localhost:8080/capture_img", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${session.accessToken}`, // JWTトークンをヘッダーに追加
         },
         body: JSON.stringify({ image: base64Image }),
       });
@@ -70,13 +79,20 @@ export default function CameraPage() {
     }
   };
 
+  useEffect(() => {
+    // 5秒ごとに画像をキャプチャしてサーバーに送信
+    const intervalId = setInterval(captureImage, 5000);
+
+    return () => clearInterval(intervalId); // コンポーネントのアンマウント時にインターバルをクリア
+  }, []);
+
   return (
     <div>
       <video
         ref={videoRef}
         autoPlay
         playsInline
-        className=" border-2 border-black rounded-lg"
+        className="border-2 border-black rounded-lg"
       />
       <canvas
         ref={canvasRef}
@@ -84,14 +100,6 @@ export default function CameraPage() {
         height="480"
         className="hidden"
       ></canvas>
-      <div className="flex justify-center ">
-        <button
-          onClick={captureImage}
-          className="px-4 mt-5 py-2 bg-blue-500 text-white rounded-lg"
-        >
-          Capture Image
-        </button>
-      </div>
     </div>
   );
 }
