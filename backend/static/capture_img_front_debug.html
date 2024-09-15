@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>姿勢検出キャプチャ</title>
+</head>
+<body>
+    <h1>姿勢検出キャプチャテスト</h1>
+
+    <!-- カメラ映像を表示するためのビデオ要素 -->
+    <video id="video" autoplay></video>
+    
+    <!-- キャプチャ画像を表示するためのキャンバス -->
+    <canvas id="canvas" style="display: none;"></canvas>
+
+    <p id="message">姿勢検出中...</p>
+
+    <script>
+        // ビデオ要素を取得
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const messageElement = document.getElementById('message');
+
+        // カメラの映像を取得してビデオタグにストリーミング
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+            })
+            .catch((error) => {
+                console.error('カメラ映像の取得に失敗しました:', error);
+            });
+
+        // スペースキーを押したときにキャプチャとサーバーへの送信を行う
+        document.addEventListener('keydown', (event) => {
+            if (event.key === ' ') {
+                console.log('スペースキーが押されました');
+                captureAndSendImage();
+            }
+        });
+
+        // 画像をキャプチャしてサーバーに送信する関数
+        function captureAndSendImage() {
+            // キャンバスの大きさをビデオと同じに設定
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // キャンバスに現在のビデオ映像を描画
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // キャンバスの画像をbase64形式で取得
+            const base64Image = canvas.toDataURL('image/jpeg').replace(/^.*,/, '');
+
+            // サーバーに画像を送信
+            fetch('/capture_img', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ img: base64Image })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('サーバーからのレスポンス:', data);
+                // サーバーからのレスポンスに応じてメッセージを更新
+                if (data.end_flag) {
+                    messageElement.textContent = '姿勢検出が終了しました';
+                } else {
+                    messageElement.textContent = data.hunchback_message.join(' ');
+                }
+            })
+            .catch((error) => {
+                console.error('エラーが発生しました:', error);
+            });
+        }
+    </script>
+</body>
+</html>
