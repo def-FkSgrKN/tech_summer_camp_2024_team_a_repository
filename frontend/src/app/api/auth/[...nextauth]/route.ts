@@ -1,4 +1,4 @@
-import NextAuth, { AuthOptions } from "next-auth";
+import NextAuth, { AuthOptions, Session } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import { JWT } from "next-auth/jwt"; // JWTの型をインポート
 import { Account, User } from "next-auth"; // AccountとUserの型をインポート
@@ -16,20 +16,31 @@ export const authOptions: AuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
+    // JWTの型指定
     async jwt({
       token,
       account,
-      user,
     }: {
       token: JWT;
       account?: Account | null;
       user?: User | null;
-    }) {
+    }): Promise<JWT> {
       if (account) {
         token.accessToken = account.access_token;
-        token.id = user?.id ?? null;
       }
       return token;
+    },
+
+    async session({
+      session,
+      token,
+    }: {
+      session: Session;
+      token: JWT;
+    }): Promise<Session> {
+      session.accessToken = token.accessToken;
+      session.user!.id = token.id;
+      return session;
     },
   },
 };
