@@ -8,7 +8,7 @@ export default async function Home() {
   return (
     <div className="bg-neutral-600 min-h-screen flex flex-col">
       <div className="flex justify-center mt-6">
-        <h1 className="text-center text-green-500 text-5xl">Your Name</h1>
+        <h1 className="text-center text-green-500 text-5xl">Fuuma</h1>
       </div>
       <div className="mx-auto max-w-lg mt-10 flex-grow">
         <CameraPage session={session} />{" "}
