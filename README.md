@@ -10,16 +10,6 @@ TechSummerCamp2024のteamAのレポジトリです.
 ここにデモをできれば張る
  
 
-# Features
- 
-Physics_Sim_Py used [pyxel](https://github.com/kitao/pyxel) only.
- 
-```python
-import pyxel
-```
-[Pyxel](https://github.com/kitao/pyxel) is a retro game engine for Python.
-You can feel free to enjoy making pixel art style physics simulations.
- 
 # Requirement
  
 * Python 3系 
