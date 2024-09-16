@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>get_capture</title>
+</head>
+<body>
+    <h3>スペースキー押下でキャプチャ取得</h3>
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" class="canvas-wrapper"></canvas>
+
+    <!-- ボタンを押すと、/templatesに飛ぶ -->
+    <form action="/" method="get">
+        <input type="submit" value='ホームページに戻る!'>
+    </form>
+</body>
+
+<script src="{{url_for('static', filename='js/posture_correction_script.js')}}"></script>
+
+<style>
+    /* canvasは非表示にする */
+    #canvas {
+        display: none !important;
+    }
+</style>
+</html>
+
+
+
