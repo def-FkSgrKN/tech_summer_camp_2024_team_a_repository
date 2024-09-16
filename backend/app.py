@@ -1,5 +1,4 @@
 import json
-from pickle import EMPTY_TUPLE
 import uuid
 import os
 import time
